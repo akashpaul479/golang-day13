@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -40,15 +41,19 @@ func Insertdata2() {
 		fmt.Println("4.Exit ")
 		fmt.Println("Enter your choice:")
 
-		var choice int
-		fmt.Scanln(&choice)
+		choicestr, _ := reader.ReadString('\n')
+		choicestr = strings.TrimSpace(choicestr)
+		choice, _ := strconv.Atoi(choicestr)
 		switch choice {
 		case 1:
 			insertFlow(db, reader)
+			pauseforEnter(reader, "press enter to return menu...")
 		case 2:
 			ListStudents(db)
+			pauseforEnter(reader, "press enter to return menu...")
 		case 3:
 			DeleteFlow(db, reader)
+			pauseforEnter(reader, "press enter to return menu...")
 		case 4:
 			fmt.Println("Exiting program...")
 			return
@@ -58,8 +63,11 @@ func Insertdata2() {
 		}
 	}
 }
-
-var std1 students1
+func pauseforEnter(reader *bufio.Reader, msg string) {
+	fmt.Println()
+	fmt.Println(msg)
+	_, _ = reader.ReadString('\n')
+}
 
 func insertFlow(db *sql.DB, reader *bufio.Reader) {
 	var std1 students1
@@ -92,13 +100,15 @@ func ListStudents(db *sql.DB) {
 	defer rows.Close()
 
 	fmt.Println("\n--- Student List ---")
+	fmt.Printf("%-5s %-15s %-30s %-2s\n", "ID", "Name", "Email", "Age")
+	fmt.Println(strings.Repeat("-", 65))
 	for rows.Next() {
 		var std students1
 		if err := rows.Scan(&std.Id, &std.Name, &std.Email, &std.Age); err != nil {
 			log.Println("Error scanning row:", err)
 			continue
 		}
-		fmt.Printf("ID: %d | Name: %s | Email: %s | Age: %d\n", std.Id, std.Name, std.Email, std.Age)
+		fmt.Printf("%-5d %-15s %-30s %-2d\n", std.Id, std.Name, std.Email, std.Age)
 	}
 }
 
